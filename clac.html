@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scheduling Algorithms: Gantt Chart</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+    input, select, button {
+      margin: 5px 0;
+    }
+    .chart-container {
+      display: flex;
+      align-items: center;
+      margin-top: 20px;
+    }
+    .process {
+      display: inline-block;
+      text-align: center;
+      border: 1px solid #333;
+      margin-right: 5px;
+      padding: 10px;
+      background-color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <h1>Scheduling Algorithms: Gantt Chart</h1>
+  <form id="schedulingForm">
+    <label for="algorithm">Select Algorithm:</label>
+    <select id="algorithm" required>
+      <option value="FIFO">First-In-First-Out (FIFO)</option>
+      <option value="SJF">Shortest Job First (SJF)</option>
+    </select>
+    <br>
+    <label for="processCount">Number of Processes:</label>
+    <input type="number" id="processCount" min="1" required>
+    <button type="button" onclick="generateInputs()">Generate Input Fields</button>
+  </form>
+  <div id="processInputs"></div>
+  <button id="generateChart" style="display:none;" onclick="generateGanttChart()">Generate Gantt Chart</button>
+  <div class="chart-container" id="ganttChart"></div>
+
+  <script>
+    function generateInputs() {
+      const processCount = document.getElementById('processCount').value;
+      const processInputs = document.getElementById('processInputs');
+      processInputs.innerHTML = '';
+      if (processCount > 0) {
+        for (let i = 0; i < processCount; i++) {
+          processInputs.innerHTML += `
+            <div>
+              <label>Process ${i + 1}:</label>
+              <input type="text" placeholder="Process Name (e.g., P${i + 1})" id="processName${i}" required>
+              <label>Burst Time:</label>
+              <input type="number" placeholder="Burst Time" id="burstTime${i}" min="1" required>
+            </div>
+          `;
+        }
+        document.getElementById('generateChart').style.display = 'block';
+      }
+    }
+
+    function generateGanttChart() {
+      const algorithm = document.getElementById('algorithm').value;
+      const processCount = document.getElementById('processCount').value;
+      const ganttChart = document.getElementById('ganttChart');
+      ganttChart.innerHTML = '';
+
+      const processes = [];
+      for (let i = 0; i < processCount; i++) {
+        const processName = document.getElementById(`processName${i}`).value;
+        const burstTime = parseInt(document.getElementById(`burstTime${i}`).value);
+        processes.push({ processName, burstTime });
+      }
+
+      if (algorithm === 'SJF') {
+        // Sort processes by Burst Time for Shortest Job First
+        processes.sort((a, b) => a.burstTime - b.burstTime);
+      }
+
+      let currentTime = 0;
+      processes.forEach(process => {
+        ganttChart.innerHTML += `
+          <div class="process" style="width: ${process.burstTime * 30}px;">
+            <p>${process.processName}</p>
+            <p>${currentTime} - ${currentTime + process.burstTime}</p>
+          </div>
+        `;
+        currentTime += process.burstTime;
+      });
+    }
+  </script>
+</body>
+</html>
